@@ -343,32 +343,33 @@ Le processus de mélange par instabilité de Kelvin-Helmholtz se déroule en plu
 
 \section{Les ondes acoustiques: propagation en océan stratifié}
 
-Nous allons maintenant nous intéresser à la propagation des ondes acoustiques dans l'océan. Cela peut avoir des applications intéressantes notamment dans la prévention des risques. Effectivement, les ondes acoustiques se déplacent dans l'océan à une vitesse d'environ 1 500 $m \cdot s^{-1}$, à titre de comparaison les vagues d'un tsunami peuvent aller à 300 $m \cdot s^{-1}$. Ainsi, trouver une caractérisation acoustique de ces phénomènes pourrait améliorer leur détection et donc dans ce cas précis anticiper l'évacuation de la population.
+Nous allons maintenant nous intéresser à la propagation des ondes acoustiques dans l'océan. Cela peut avoir des applications intéressantes notamment dans la prévention des risques \FAadd{lors de la génération d'évènements potentiellement catastrophiques tels que les tsunamis}. Effectivement, les ondes acoustiques \FAadd{générées lors de la mise en mouvement initiale de la colonne d'eau par les forçages du tsunami,} se déplacent dans l'océan à une vitesse d'environ 1 500 $m \cdot s^{-1}$, à titre de comparaison les vagues d'un tsunami peuvent aller à 300 $m \cdot s^{-1}$. Ainsi, trouver une caractérisation acoustique de ces phénomènes pourrait améliorer leur détection et donc dans ce cas précis anticiper l'évacuation de la population.
 
 \subsection{Postulats dynamiques}
 \subsubsection{Mise en équation}
 
 
-On part des équations habituelles de la mécanique des fluides et de la thermodynamique. (phrase sur le régime)
+On part des équations habituelles de la mécanique des fluides et de la thermodynamique\FAadd{pars plutôt de ton système initial que tu peux citer)} . (phrase sur le régime) \FAadd{Oui, ce serait parfait, tu peux d'ailleurs faire de même pour les deux instabilités étudiées précédemment.}
 \\
-On néglige la force de Coriolis, la viscosité et le coefficient de diffusivité.
+On néglige la force de Coriolis, la viscosité et le coefficient de diffusivité. \FAadd{Tu peux préciser que l'on conserve par contre la seconde viscosité (moléculaire) liée à la dissipation de l'onde acoustique et ce en particulier dans le sédiment.}
 \\
-Ce n'est pas une équation de d'Alembert classique que vérifie la pression ici, en effet il faut prendre en compte la vitesse et la non-homogénéité du fluide. Voici l'équation que propose Godin[2011] cf thèse PAD
+Ce n'est pas une équation de d'Alembert classique que vérifie la pression ici, en effet il faut prendre en compte la vitesse et la non-homogénéité du fluide. Voici l'équation que propose Godin[2011] cf thèse PAD \FAadd{Cite la thèse après l'avoir référencée.}
 \begin{equation}
     \frac{d}{dt}[\frac{d}{dt}(\frac{1}{\rho cÂ²}\frac{dp}{dt}) - \nabla \cdot \frac{\nabla p}{\rho}] + 2\frac{\partial \mathbf{u}}{\partial x_i} \cdot \nabla (\frac{1}{\rho}\frac{\partial \rho}{\partial x_i}) = 0
 \end{equation}
 
-Cependant, cette équation ne retranscrit pas vraiment ce qu'on cherche à représenter. En effet, nous souhaiterions prendre en compte les conditions aux limites: les sédiments au fond de l'océan et a surface libre, car celles ci sont essentielles pour comprendre le concept de propagation en modes. cf OM2021
+Cependant, cette équation ne retranscrit \FAdel{pas vraiment} \FAadd{ qu'une partie de} ce qu'on cherche à représenter. En effet, nous souhaiterions prendre en compte les conditions aux limites: les sédiments au fond de l'océan et à la surface libre, car celles-ci sont essentielles pour comprendre le concept de propagation en modes. cf OM2021
 
 \subsubsection{Concept de modes de propagation}
 
-A la manière de la propagation d'une onde électromagnétique dans une fibre optique, l'onde acoustique ici se réfléchit à la fois à la surface et au fond de l'océan. Cela conduit notamment en interférences entre les différents fronts réfléchis. Les interférences constructrices forment ce qu'on appelle des "modes de propagation". On numérote également ces modes: les numéros correspondent au nombre de réflexion avant l'interférence. On comprend donc que plus le mode est élevé, moins le front est rapide. \\
-Là il me manque une image mais j'en trouve pas de satisfaisante, je la créerai peut etre moi même.
+A la manière de la propagation d'une onde électromagnétique dans une fibre optique \FAadd{(référence?)}, l'onde acoustique ici se réfléchit à la fois à la surface et au fond de l'océan. Cela conduit notamment à des interférences entre les différents fronts réfléchis. Les interférences constructrices forment ce qu'on appelle des "modes de propagation". On numérote également ces modes: les numéros correspondent au nombre de réflexion avant l'interférence. On comprend donc que plus le mode est élevé, moins le front est rapide. \\
+Là il me manque une image mais j'en trouve pas de satisfaisante, je la créerai peut etre moi même. \FAadd{ Cite et reprend l'ouvrage de Jensen (je pense te l'avoir donné en pdf... il est assez pédagogique (à mon goût en tout cas) et contient de nombreuses illustrations.}
 %c dans un milieu non borné
 \\
 
 Décrire avec un article OM2021 pour les conditions aux limites
 autre publi: revisiting oceaninic acoustic gravity surface waves
+\FAadd{L'idée de ces publications est de proposer une modèle de dispersion à 2 équations suffisamment général pour englober ondes acoustiques, ondes de gravité interne et ondes de gravité de surface dans un océan stratifié et compressible. Tu peux en profiter pour souligner une certaine ressemblance entre modes acoustiques et modes gravitaires internes. }
 
 \subsection{Popagation en 2d dans un océan stratifié en prenant en compte la bathymétrie}
 
@@ -402,7 +403,7 @@ autre publi: revisiting oceaninic acoustic gravity surface waves
 \end{figure}
 Pour la première configuration, on considère une onde acoustique émise à 100 mètres de profondeur, dans un environnement avec une bathymétrie marquée. \\
 Les "taches" que l'on voit sur les figures représentent les modes de propagation. \\
-D'ailleurs, à  partir de la deuxième image on voit bien que l'onde a l'air de se propager plus vite dans le sédiment que dans l'océan, on apperçois également la réfraction de l'onde dans le sédiment qui retourne dans l'océan, qui se trouve donc devant le front d'onde.\\
+D'ailleurs, à  partir de la deuxième image on voit bien que l'onde \FAdel{a l'air de se propager}  \FAadd{se propage} plus vite dans le sédiment que dans l'océan, on aperçoit également la réfraction de l'onde dans le sédiment qui retourne dans l'océan, qui se trouve donc devant le front d'onde.\\
 On remarque également l'atténuation de l'onde dans le sédiment, bien qu'elle se déplace plus vite dedans.
 
 \\
@@ -413,7 +414,7 @@ Ensuite, nous avons refait des simulations en changeant à la fois la nature du 
 On  compare la propagation d'une onde acoustique dans un océan de 150 mètres de profondeur en fonction de la nature du sédiment. \\
 Pour l'argile, on a pris une vitesse de compression de $1550 m \cdot s^{-1}$ et une densité égale à $1.7 kg \cdot dm^{-3}$ .
 \\
-Pour l'agile, on a pris une vitesse de compression de $1800 m \cdot s^{-1}$ et une densité égale à $2 kg \cdot dm^{-3}$. \\
+Pour l'agile, on a pris une vitesse de compression de $1800 m \cdot s^{-1}$ et une densité égale à $2 kg \cdot dm^{-3}$. \FAadd{Deux fois la même phrase ? Je ne suis pas sûr de bien suivre ?}\\
 D'ailleurs la vitesse de compression dans un sédiment dépend entre autre de sa densité, plus le milieu est dense, plus l'onde se propage rapidement.
 \begin{figure}[H]
     \centering
@@ -437,9 +438,18 @@ Maintenant comparons la propagation de l'onde dans un même milieu mais pour des
 \end{figure}
 Dans l'océan profond de 150 mètres, l'onde semble complètement atténuée vers une profondeur de -370 mètres. Pour celui profond de 300 mètres, l'onde résiste au delà de 500 mètres de profondeur. Globalement dans les deux océans les ondes sont atténuée dans le sédiment après une distance caractéristique autour des 200 mètres. 
 \vspace{1 cm}
-Finalement, on comprend que plusieurs facteurs rentrent en jeu lorsqu'il s'agit d'évaluer la propagation d'une onde acoustique dans l'océan. Tout d'abord la profondeur des eaux joue sur la distance maximale que l'onde pourra atteindre avant d'être atténuée. D'autre part, la nature du sédiment influence la vitesse de propagation de l'onde, en effet l'onde se propage plus vite dans le sable, c'est-à-dire dans le milieu le plus dense (la masse volumique du sédiment n'est pas le seul paramètre à prendre en compte).
+Finalement, on comprend que plusieurs facteurs rentrent en jeu lorsqu'il s'agit d'évaluer la propagation d'une onde acoustique dans l'océan. Tout d'abord la profondeur des eaux joue sur la distance maximale que l'onde pourra atteindre avant d'être atténuée. D'autre part, la nature du sédiment influence la vitesse de propagation de l'onde, en effet l'onde se propage plus vite dans le sable, c'est-à-dire dans le milieu le plus dense (la masse volumique du sédiment n'est pas le seul paramètre à prendre en compte).\\
+\FAadd{Petit conclusion partielle ici aussi... Tu peux d'ailleurs reprendre le paragraphe précédent. Prends juste un peu de recule: que t'apporte cette partie de l'étude ?}
 \section{Discussion et conclusion}
 
+\FAadd{Nous avions commencé en discuter, tu peux rédiger 2-3 parties:
+\begin{itemize}
+    \item Discussion des résultats scientifiques: résume de façons très synthétiques tes résultats sur ton choix de processus de sous-mésoéchelle.
+    \item Conclusion scientifique: tu as souligné en introduction l'importance du spectre de sous-mésoéchelle... En quoi ton étude permet-elle d'avancer ? Tu peux par exemple discuter du fait que cette étude ciblant les processus permet de mieux comprendre la dynamique spécifique de chaque processus bien sûr mais aussi d'évaluer la pertinence du protocole de modélisation numérique avec CROCO: aspects numériques et HPC.
+    \item Perspectives scientifiques: tu peux par exemple discuter du fait qu'une petite partie seulement du chemin est faite avec ces études académiques... L'océan étant très non-linéaires, la somme des processus ne permets malheureusement pas de conclure sur la qualité de la prévision!
+    \item A toi de voir, mais je pense qu'il te faut rédiger un petit paragraphe pour la conclusion du stage à proprement parlé en reprenant les objectifs fixés par l'ENS.
+    
+\end{itemize}}
 
 \newpage
 
