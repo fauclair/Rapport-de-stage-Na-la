@@ -130,7 +130,7 @@ L'ensemble de la dynamique des phénomènes étudiés s'appuie sur les équation
 \begin{equation}
     \rho_{eos}(\theta, S, p_h +\delta p) = \rho_{eos}(\theta, S, p_0) + c_s^{-2}(p_h - p_0) + c_s^{-2}\delta p
 \end{equation}
-Ce qui donne :
+\FAadd{A l'ordre 0 en anomalie de pression totale $(\delta p)$, il est encore possible de décomposer le profil de densité en une composante (statiquement) stable $(\rho_h)$ et une composante instable $(\rho_c)$. Il est à noter que cette décomposition n'est pas unique mais qu'elle est obtenue via un algorithme de montée/descente demandant un minimum de calculs (auclair et al., 2024):}
 \begin{equation}
      \rho_{eos}(\theta, S, p_h +\delta p) =  \rho_h + \rho_c + c_s^{-2}\delta p
      \label{eq:decomp densite}
@@ -148,14 +148,18 @@ Croco (Coastal and Regional Ocean COmmunity model) \FAadd{est un code communauta
 
 
 \subsection{Objectifs et hypothèses}
-Au LAERO (Laboratoire d'Aérologie, Observatoire Midi-Pyrénées) l'équipe qui développe Croco se concentre sur la représentation dynamique et numérique des processus océaniques de sous-mésoéchelle \FAdel{sous la forme de cas-test}. On isole un processus et on essaie de le représenter de la façon la plus fidèle possible, en cherchant un compromis avec un amoindrissement des coûts énergétiques. \\
-Plusieurs hypothèses fondamentales ont été faites pour les représentations dynamiques, on parle notamment de représentation compressible et non-hydrostatique, hypothèses essentielles pour modéliser les ondes acoustiques. De plus, pour prendre en compte les ondes de surfaces, on a considérer l'existence d'un "toit libre", à l'inverse d'une surface océanique plate et rigide.
+Au LAERO (Laboratoire d'Aérologie, Observatoire Midi-Pyrénées) l'équipe qui développe Croco se concentre sur la représentation dynamique et numérique des processus océaniques de sous-mésoéchelle. \FAadd{Cette équipe est plus spécifiquement en charge du noyau numérique non-hydrostatique et compressible en étroite collaboration avec l'équipe AIRSEA d'INRIA pour les aspects "calcul haute performances" (auclair 2024). }.\\
+\FAadd{Si l'objectif demeure la simulation numérique réaliste de l'océan régional, les processus de sous-mésoéchelle sont toutefois systématiquement étudiés de façon isolée afin d'évaluer et faire évoluer l'ensemble des algorithmes et des schémas numériques. Des cas-tests académiques sont ainsi proposés et étudiés en détail d'un point de vue dynamique bien sûr mais aussi numérique et informatique ou HPC (voir par exemple l'étude des instabilités de cisaillement de type Kelvin-Helmholtz, centrales pour la mise en place de simulations LES\footnote{LES: Large Eddy Simulation, lorsque les grandes structures turbulentes menant à la cascade turbulente directe sont explicitement simulées.}: (Penney et al, 2020).}
+\FAdel{sous la forme de cas-test}. On isole ainsi un processus et on essaie de le représenter de la façon la plus fidèle possible, en cherchant un compromis avec un amoindrissement des coûts \FAadd{de calcul et plus généralement des coûts environnementaux}. \\
+Plusieurs hypothèses fondamentales ont été faites pour les représentations dynamiques, on parle notamment de représentation compressible et non-hydrostatique, deux hypothèses essentielles pour modéliser les ondes acoustiques. De plus, pour prendre en compte les ondes de surfaces, on considère l'existence d'un "toit libre", à l'inverse d'une surface océanique plate et rigide. \FAadd{Le choix de remettre en cause l'hypothèse de Boussinesq et de rendre le code compressible n'est pas dicté par la seule prise en compte des ondes acoustiques mais aussi par la nécessité de rendre le code \textit{non-hydrostatique} (auclair et al., 2018). En effet, sous l'hypothèse de Boussinesq, le calcul de la pression totale en écoulement non-hydrostatique requiert la résolution d'un système de Poisson tridimensionnel. La principale difficulté est dans ce cas liée au traitement de la surface libre et le choix fait dans le code Croco consiste à réintroduire les ondes acoustiques afin de conserver un système mathématiquement \textit{hyperbolique} et numériquement \textit{local} dans un contexte d'implémentation massivement parallèle.}
 
 
 
 \subsection{Fonctionnement}
-D'un point de vue plus technique, le code de Croco repose sur certains principes de fonctionnements tel que le calcul parallèle: au lieu d'utiliser l'ensemble des processeurs à disposition pour faire les calculs sur une grille entière, le calcul parallèle permet de diviser la grille initale et d'attribuer chaque compartiment à un processeur qui échangera ensuite ses informations avec les autres processeurs. \\
-Ensuite, en ce qui concerne les coordonnées verticales, nous utilisons un système "s", 
+\FAadd{D'un point de vue plus informatique et en termes de calcul haute performance (dit HPC), le code océanique Croco est développé depuis le milieu des années 2010 par les équipes d'INRIA, du CNRS-INSU, d'IFREMER, du SHOM, de l'IRD et de l'Université de Toulouse III Paul Sabatier dans le cadre du Groupement de Recherche (GdR) éponyme. CROCO s'appuie à l'origine sur le code ROMS et plus spécifiquement ROMS-AGRIF choisi avant tout pour ses excellentes performances en termes de cout de calcul mais aussi de gestion de la mémoire (Shchepetkin \& McWilliams2005).}\\
+Comme son parent ROMS, Croco repose sur certains principes de fonctionnements tel que le calcul parallèle s'appuyant sur la bibliothèque MPI: au lieu d'utiliser l'ensemble des processeurs à disposition pour faire les calculs sur une grille entière, le type de calcul parallèle \FAadd{choisi} permet de diviser la grille initiale \FAadd{en sous  domaines sur l'horizontale} et d'attribuer chaque \FAadd{sous-domaine} à un processeur qui échangera ensuite ses informations avec les autres processeurs. \\
+Ensuite, concernant cette fois les coordonnées verticales, CROCO s'appuie sur une grille Arakawa-C et un système de coordonnées dites "s" \FAadd{qui suivent à la fois l'évolution de la bathymétrie et celle de la surface libre au cours du temps. \\
+A l'image de sa version d'origine (hydrostatique), le noyau numérique compressible et non-hydrostatique de CROCO repose sur un traitement séparé mais couplé (\textit{time-splitting} en anglais) de la dynamique lente (géostrophie, courants d'Ekman...) et de la dynamique rapide, cette dernière concernant essentiellement la surface libre et la physique compressible et non-hydrostatique. Un schéma temporel prédicteur/correcteur original dit \textit{LFAM3 / Forward-Backward} est implémenté (Shchepetkin \& McWilliams2005 et auclair 2024).}\\
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 systèmes de coordonnées verticales (terrain following "s")\\
@@ -171,14 +175,14 @@ architecture cpu(=calculateur classique) gpu(=graphic processing unit bco de pro
 \section{Les instabilités convectives}
 \subsection{L'instabilité de Rayleigh-Taylor}
 
-Comparable à l'instabilité de Rayleigh-Taylor, l'instabilité convective de déclenche à l'interface entre deux fluides de densités différentes, lorsque le fluide de densité forte est au-dessus du fluide de densité faible. \\ 
+\FAadd{A l'instar de} l'instabilité de Rayleigh-Taylor, l'instabilité convective se déclenche à l'interface entre deux fluides de densités différentes, lorsque le fluide de densité forte est au-dessus du fluide de densité faible. \FAadd{La stratification est alors \FAadd{statiquement instable}.} \\ 
 Regardons de plus près la description mathématique et numérique de ce processus.
 
 \subsubsection{Analyse dynamique}
 
-L'équation qui va beaucoup nous intéresser ici d'une part pour comprendre la dynamique du phénomène mais aussi pour proposer différentes représentations numériques est l'équation d'état \eqref{eq:etat}. \\
+\FAdel{L'équation qui va beaucoup nous intéresser ici d'une part pour comprendre la dynamique du phénomène mais aussi pour proposer différentes représentations numériques est l'équation d'état \eqref{eq:etat}. }\\
 \vspace{0.5 cm}
-Dans cette décomposition, le terme $\rho_c$ est responsable du déclenchement de la convection. Cependant, on peut choisir une modélisation sans ce terme, ce qui reviendrait à considérer que l'instabilité vient du gradient de pression (voir \ref{sans rhoc}).
+\FAadd{Au sein de la décomposition proposée en (référence de la relation), la composante $\rho_c$} est responsable du déclenchement de la convection. \FAdel{Cependant, on peut choisir une modélisation sans ce terme, ce qui reviendrait à considérer que l'instabilité vient du gradient de pression (voir \ref{sans rhoc}).} \FAadd{En l'absence de cette décomposition $(\rho_c=0)$,la convection peut toutefois être déclenchée de façon indirecte via l'action du gradient horizontal de pression hydrostatique puis de la composante compressible de ce même gradient de pression. Une question sous-jacente repose alors sur les conséquences dynamiques de ce choix numérique et l'on peut au final se demander si le mélange induite est in fine identique dans les deux cas.} \FAadd{Cette partie trouverait plus sa place dans la discussion des aspects numériques... Tu pourrais te contenter d'expliquer ce que sont les instabilités convectives et de RT...}
 
 \\
 \vspace{0.5 cm}
@@ -192,19 +196,21 @@ Dans ces conditions, on définit la flottabilité $b$ ainsi :
 \begin{equation}
     b = \dfrac{-g}{\rho_0}(\rho_c - \rho_0)
 \end{equation}
+\FAadd{Si tu formules ce terme sans $\rho_0$ (il part quoiqu'il en soit avec le gradient vertical de pression), tu facilites grandement la discussion qui suit...}
 \\
-On voit donc le lien ici entre le mouvemement vertical du fluide et la façon avec laquelle on décompose la densité. En effet la présence de :$\rho_c$ installe un régime de convection immédiat, car on aura $b \neq 0$.\\
+On voit donc le lien ici entre le mouvement vertical du fluide et la façon avec laquelle on décompose la densité. En effet la présence de :$\rho_c$ installe un régime de convection immédiat, car on aura $b \neq 0$. \FAadd{Pas avec la formulation actuelle!}\\
 
 \subsubsection{Représensation numérique}
 
-Le choix de cette décomposition de la densité est surtout lié à  des problématiques numériques, nous allons voir tout de suite les différences dans le processus de la convection selon la représentation que l'on choisi. \\
+Le choix de cette décomposition de la densité est surtout lié à  des problématiques numériques, nous allons voir tout de suite les différences dans le processus de la convection selon la représentation que l'on choisit. \\
+\FAadd{Une bonne pratique ici est de donner de façon rigoureuse l'ensemble des paramètres de la configuration que tu étudies, l'idée étant que ton lecteur doit être en mesure de la reproduire. Pour faire simple tu peux récupérer pour cela les "tables" écrites dans la papier en cours d'écriture que je t'ai passé: tu devrais y trouver tout ce dont tu as besoin. Pour les configurations acoustiques, tu devrais trouver l'équivalent dans le manuscrit de thèse de Pierre-Antoine.}
 Dans les deux cas, on part du même état initial, on considère un fluide stratifié et stable dans lequel on plonge une goutte stratifiée avec deux densités différentes :
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.7
     \textwidth]{images/Int_ConvT0.png}
-    \caption{Instant initial}
+    \caption{Instant initial \FAadd{Comme indiqué précédemment, tu dois détailler un peu ce qui est représenté: quelle variable, quelle type de section (verticale ici)... }}
 \end{figure}
 
 
@@ -213,8 +219,8 @@ Dans les deux cas, on part du même état initial, on considère un fluide strat
 \vspace{0.5 cm}
 
 \\
-Dans ce cas de figure le terme $\rho_h$ est calculé de sorte à  lisser le profil de densité pour en faire un profil stable. Dans le code, il est calculé par le pas de temps lent. \
-Ainsi, dans cette première configuration $\rho_c$ représente l'anomalie autour du profil stable, il est calculé par le pas de temps rapide. C'est donc ce terme qui déclenche la convection (cf équation (6)). \\
+Dans ce cas de figure le terme $\rho_h$ est calculé de sorte à  lisser le profil de densité pour en faire un profil stable (voir \§ à préciser). Dans le code, il est calculé au pas de temps lent. \\
+Ainsi, dans cette première configuration $\rho_c$ représente l'anomalie autour du profil stable, il est calculé au pas de temps rapide. C'est donc ce terme qui déclenche la convection (cf équation (6)). \\
 
 \begin{figure}[htb]
     \centering
@@ -224,7 +230,7 @@ Ainsi, dans cette première configuration $\rho_c$ représente l'anomalie autour
     \label{fig:images_cote_a_cote}
 \end{figure}
 
-Au bout de 85 secondes, nous arrivons à distinguer une sorte de flèche verticale : c'est la forme caractéristique de l'instabilité de Rayleigh-Taylor. On remarque également des sortes de "vagues" autour de la flèche, ce sont des instabilités secondaires de Kelvin-Helmholts, qui seront traitées plus tard (Cf \ref{KHI}).
+Au bout de 85 secondes, nous arrivons à distinguer une sorte de flèche verticale \FAadd{(forme de champignon ?)}: c'est la forme caractéristique de l'instabilité de Rayleigh-Taylor. On remarque également des sortes de "vagues" autour de la flèche \FAadd{(structures se développant cette fois sur l'horizontale)}, ce sont des instabilités secondaires de Kelvin-Helmholtz, qui seront traitées plus tard (Cf \ref{KHI}).
 
 
 \vspace{1 cm}
@@ -234,11 +240,11 @@ Au bout de 85 secondes, nous arrivons à distinguer une sorte de flèche vertica
 \label{sans rhoc}
 \vspace{0.5 cm}
 
-Dans cette configuration là , la décomposition de la densité ne fait pas apparaître le terme $\rho_c$, on a donc :
+\FAdel{Dans cette configuration là} Lorsque la décomposition de la densité ne fait pas apparaître le terme $\rho_c$, on a donc :
 \begin{equation}
     \rho_{eos} = \rho_h + c_s^{-2}\delta p
 \end{equation}
-La convection vient d'abord du gradient de pression (cf équation (2)), d'où un mouvement plus porté par l'horizontale. 
+\FAdel{La convection vient d'abord du gradient de pression (cf équation (2)), d'où un mouvement plus porté par l'horizontale.} \FAadd{ L'action conjointe des composantes hydrostatiques et non-hydrostatiques du gradient de pression est à l'origine de forts cisaillements de courant le long de la surface externe de la bulle. En présence de stratification, des instabilités de cisaillement de type Kelvin-Helmholtz se déclenchent. Ces instabilités sont étudiées en détail par la suite (référence).}
 \\
 La simulation numérique donne :
 
@@ -249,29 +255,26 @@ La simulation numérique donne :
     \caption{Description globale des deux images}
     \label{fig:images_cote_a_cote}
 \end{figure}
-\\
-On remarque des différences dans le processus, notamment dans l'étendue verticale de la convection. On retrouve quand même les instabilités secondaires de Kelvin-Helmholtz, qui viennent du cisaillement des vitesses (elles-mêmes fruits du gradient de pression, cf \eqref{eq: qtt de mouvement}).
-\\
-On voit que le mouvement a une extension verticale beaucoup plus restreinte que lorsque la décomposition de $\rho$ prenait en compte $\rho_c$.
+\underline{\textbf{Conclusion partielle :}} \\
+On remarque des différences dans le processus, notamment dans l'étendue verticale de la convection. On retrouve quand même les instabilités secondaires de Kelvin-Helmholtz, qui viennent du cisaillement des vitesses \FAdel{(elles-mêmes fruits du gradient de pression, cf \eqref{eq: qtt de mouvement}).}\\
+On voit que le mouvement a une extension verticale beaucoup plus restreinte que lorsque la décomposition de $\rho$ prenait en compte $\rho_c$. \FAadd{Tu peux discuter aussi du fait que, même si tu ne le montre pas directement dans ton rapport, il a possible de montrer que l'état mélangé final n'est pas identique dans les deux cas... avant de conclure qu'il semble par conséquent important de représenter correctement le processus d'instabilité même si l'on est seulement intéressé par l'état final, i.e. une fois le mélange diapycnal terminé.}
 \\
 Parler de brunt vasiala
 
 \subsection{L'instabilité de Kelvin-Helmholtz}
 \label{KHI}
-\\
-Là je comptais nommer les autres instabilités de cisaillements sans trop les détailler + parler un peu des ondes internes mais je sais pas à quel point c'est une bonne idée de parler de quelque chose sans le détailler.
-\\
+Là je comptais nommer les autres instabilités de cisaillements sans trop les détailler + parler un peu des ondes internes mais je sais pas à quel point c'est une bonne idée de parler de quelque chose sans le détailler.\\ \FAadd{Oui, ce serait parfait... Comme tu n'auras pas la place pour entrer dans les détails, tu devras aussi t'appuyer sur une ou plusieurs publications bien choisie(s).}
 Cette instabilité se produit au niveau d'une interface de cisaillement de vitesse dans un fluide stratifié (c'est-à-dire, $N = cste$). \\
 
 \subsubsection{Analyse dynamique}
 
-On considère un fluide stratifié dans lequel on retrouve un cisaillement de vitesse. Plus précisément, sur la figure \ref{fig:KHI1} la partie bleue a une composante horizontale de vitesse égale à $-1 m \cdot s^{-1}$, tandis que celle de la partie rouge vaut $+1 m \cdot s^{-1}$. D'un point de vue statique, le fluide est stable, c'est-à-dire qu'on à $\rho_{bleu} < \rho_{rouge}$. \\
+On considère un fluide stratifié dans lequel on retrouve un cisaillement de vitesse. Plus précisément, sur la figure \ref{fig:KHI1} la partie bleue a une composante horizontale de vitesse égale à $-1 m \cdot s^{-1}$ \FAadd{(Ajoute des flèches indiquant la direction du courant directement sur la figure (a)}, tandis que celle de la partie rouge vaut $+1 m \cdot s^{-1}$. D'un point de vue statique, le fluide est stable, c'est-à-dire qu'on a $\rho_{bleu} < \rho_{rouge}$. \\
 On exprime la vitesse du fluide sous la forme d'une anomalie autour du profil moyen U, on a donc $u = U+u'$ avec $u'<<U$. \\
 On se place également sous l'hypothèse incompressible, ce qui nous permet d'écrire: 
 \begin{equation}
     \mathbf{\nabla} \cdot \mathbf{u} = 0
 \end{equation}
-Ainsi, nous pouvons réécrire les équations de la mécaniques des fluides et de la thermodinamiques (\ref{Dynamiques globales}) en fonction de $\psi$, la fonction de courant afin de réduire le nombre d'inconnues.
+Ainsi, nous pouvons réécrire les équations de la mécaniques des fluides et de la thermodynamique (\ref{Dynamiques globales}) en fonction de $\psi$, la fonction de courant afin de réduire le nombre d'inconnues \FAadd{au prix d'une équation d'évolution présentant des dérivées partielles d'ordre plus élevé}. \FAadd{Pour homogénéiser les notations dans ton manuscrit, écris plutôt $\partial_{yy}U$.}
 \\
 On écrit :
 \begin{equation}
@@ -290,18 +293,17 @@ La stratégie adoptée pour mettre en évidence un critère de stabilité est la
 \begin{equation}
     N² - \frac{U_{z}²}{4} < 0
 \end{equation}
-Ce qui donne : $\frac{N²}{U_{z}²} < \frac{1}{4}$. 
+En fait, cette condition a 2 solutions, une stable (pas de d'instabilité de Kelvin-Helmholtz donc) et une instable (celle qui nous intéresse), c'est pour cela qu'on qualifie cette condition de nécessaire non suffisante.\\
+\FAdel{Ce qui donne :}\FAadd{Le critère nécessaire d'instabilité est donc:} $\frac{N²}{U_{z}²} < \frac{1}{4}$. 
 Que l'on peut traduire par :
 
 \begin{equation}
     Ri < \frac{1}{4}
 \end{equation}
-En fait, cette condition a 2 solutions, une stable (pas de d'instabilité de Kelvin-Helmholtz donc) et une instable (celle qui nous intéresse), c'est pour cela qu'on qualifie cette condition de nécessaire non suffisante.
 
- \\
 
 \subsubsection{Représentation numérique}
-Le processus de mélange par instabilité de Kelvin-Helmhotlz se déroule en plusieurs étapes. Tout d'abord après quelques instants à peine on distingue la phase \textbf{d'enroulement} (voir figure \ref{fig:KHI2}), la partie la plus dense du fluide s'enroule autour de la partie moins dense ce qui forme une sorte de vagues. Ensuite, le "bout de la vague" s'étire donc, par conservation de matière, le fil s'amincit, c'est la phase \textbf{d'étirement} (figure \ref{fig:KHI3}). Jusque là, il n'y a pas de mélange, on voit encore bien les phases bleues et rouges du fluide, ce n'est qu'après la phase d'étirement que le mélange se fait (figure \ref{fig:KHI4}).
+Le processus de mélange par instabilité de Kelvin-Helmholtz se déroule en plusieurs étapes. Tout d'abord après quelques instants \FAadd{(sois précise...)} à peine on distingue la phase \textbf{d'enroulement} (voir figure \ref{fig:KHI2}), la partie la plus dense du fluide s'enroule autour de la partie moins dense ce qui forme une sorte de vague. Ensuite, le "bout de la vague" s'étire donc, par conservation de matière, le fil s'amincit, c'est la phase \textbf{d'étirement} (figure \ref{fig:KHI3}). \FAadd{A ce stade, aucun processus diabatique n'est véritablement entré en jeu.} Jusque là, il n'y a pas de mélange, on voit encore bien les phases bleues et rouges du fluide, ce n'est qu'après la phase d'étirement que le mélange se fait (figure \ref{fig:KHI4}).
 \begin{figure}[htbp] % L'argument [htbp] indique à LaTeX d'essayer de placer la figure "ici", "en haut de la page", "en bas de la page" ou "à la page suivante", selon ce qui convient le mieux.
     \centering
     \begin{minipage}{0.45\textwidth}
@@ -332,7 +334,7 @@ Le processus de mélange par instabilité de Kelvin-Helmhotlz se déroule en plu
     \end{minipage}
 \end{figure}
 
-
+\FAadd{Petites conclusion partielle: quels étaient les objectifs et quels sont tes conclusions ? Comme pour la section précédente, tu peux dire que la représentation de l'instabilité est correcte et qu'il a par ailleurs était possible de montrer que le déclenchement (numérique) respecte bien le critère nécessaire. Tu as le résultat dans le papier que je t'ai donné... on montre de plus que la croissance initiale de l'instabilité numérique est tout à fait similaire à ce que donne une analyse de stabilité linéaire. Enfin tu peux plus généralement citer le papier de Jared Penney dans lequel le mélange des traceurs est plus spécifiquement étudié. A toi de voir par contre ce que tu souhaites garder pour la conclusion partielle et pour ta discussion finale.}\\
 
 
 
