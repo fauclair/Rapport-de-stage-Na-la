@@ -5,11 +5,10 @@
 \usepackage{mathrsfs} % Pour les lettres script
 \usepackage{hyperref} % Pour les hyperliens et les références croisées
 \title{Rapport ECL - Template} %Titre du fichier
-\usepackage{lipsum} 
 \usepackage{biblatex} %Imports biblatex package
 \addbibresource{bibtex.bib} %Import the bibliography file
 \usepackage{appendix} % Package pour gérer les annexes
-
+\usepackage{ulem}
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \definecolor{peru}{RGB}{205,133,63}
@@ -40,50 +39,47 @@
 \tabledematieres %Créer la table de matières
 
 %------------ Corps du rapport ----------------
-\FAadd{Dans ton introduction, il te faut introduire le sujet en identifiant clairement la problématique, en proposant un état de l'art sous la forme d'une revue biblio (en 4 semaines, quelques articles bien ciblés suffiront)... Tu peux enfin décrire en quelques lignes le plan de ton rapport.\\
-Je pense que tu peux proposer dans une seconde partie, une discussion (rapide) du modèle analytiques puis du code. A la limite tu peux si tu le souhaites récupérer une partie des analyses d'échelle pour bien préciser les régimes dynamiques et donc numériques que tu proposes d'étudier. Cette analyse serait à glisser entre la partie modèle analytique et la partie numérique.\\
-Côté objectif et fil conducteur, souhaites-tu partir d'une des figures que je t'ai proposées (et que tu peux mofifier comme tu le souhaites) afin d'expliquer que l'on s'attaque à la simulation explicite de la sous-mésoéchelle (processus et cascades diverses) et qu'à ce titre on commence par étudier de façon isolée les processus clés ? \\
-Le tout je pense est de proposer quelques choses de cohérent, ciblé, avec un objectif et un raisonnement clairs. Qu'en penses-tu ?
-A très vite pour discuter de tout cela...
-}
-
 \section{Introduction} 
 
 
+\FAadd{Je dirais qu'il te faut commencer par une ou deux phrases introductives présentant le stage. Quel type de stage, dans quel type de cursus et dans quel environnement (labo, équipe...) ?}\\
+Durant ce stage nous nous sommes intéressés à différents processus océanique de sous-mésoéchelle. \FAdel{Tentons de comprendre un petit peu ce qui ce cache derrière la notion de "sous-mésoéchelle".}
+\FAadd{Évite au maximum le style "narration" dans un document scientifique. Certains éditeurs recommandent même de ne pas utiliser la première personne. Sans tomber dans l'excès, essaie d'épurer le style en adoptant une écriture précise et scientifique (chaque mot renvoie une notion clairement définie)...}
 
-Durant ce stage nous nous sommes intéressés à différents processus océanique de sous-mésoéchelle. Tentons de comprendre un petit peu ce qui ce cache derrière la notion de "sous-mésoéchelle".
-
-
-\subsection{Point sur les échelle}
+\subsection{Point sur les échelle  ou... L'océan et ses échelles caractéristiques...}
 %regarder taylor thompson 2023
-De façon générale lorsque nous présentons les différents phénomènes océaniques nous parlons de 3 échelles:
+De façon générale lorsque nous présentons les différents phénomènes océaniques nous parlons de 3 échelles:\\
+\FAadd{Le spectre des processus océaniques peut globalement être divisé en trois gammes d'échelles spatio-temporelles:}
 \begin{itemize}
-    \item la grande échelle : décrit la circulation globale de l'océan (circulation thermohaline...)
-    \item la mésoéchelle : les transports d'Ekman, les vents thermiques, les modèles de bassins, les modèles régionaux..
-    \item la microéchelle (comprenant aussi l'échelle moléculaire) : la turbulance...
+    \item la grande échelle : décrit la circulation globale de l'océan (circulation thermohaline...) \FAadd{ On parle aussi d'échelle synoptique}.
+    \item la mésoéchelle : les transports d'Ekman, \FAadd{les courants géostrophiques et} les vents thermiques, \FAdel{les modèles de bassins, les modèles régionaux} \FAadd{A ce stade, ne mélange pas les échelles de processus et les modèles. Une fois les échelles dégagées, tu introduiras les modèles analytiques ou numériques.}.
+    \item la microéchelle (comprenant aussi l'échelle moléculaire) : la turbulence \FAadd{homogène, isotrope et tridimensionnelle et sa cascade inertielle. Tu peux citer l'ouvrage de Frisch par exemple \cite{frisch_turbulence_1995}.}
 \end{itemize}
 
-Cependant, nous savons que la méso-échelle et la micro-échelle sont étroitement liées et échanges de l'énergie et de la vorticité. En effet, la petite échelle apporte de l'énergie à la grande échelle, tandis que celle-ci alimente la petite échelle en enstrophie (vorticité). Ces échanges se font par l'intermédiaire de processus de sous-mésoéchelle, on parle de "cascading". La difficulté est la suivante: où met-on les frontières de la sous-mésoéchelle ? \\
-Regardons de plus près quels sont les caractéristiques physiques qui pilotent les processus des différentes échelles. Au niveau de la mésoéchelle,\\
+Cependant, nous savons que la méso-échelle et la micro-échelle sont étroitement liées et échanges de l'énergie et de la vorticité. En effet, la petite échelle apporte de l'énergie à la grande échelle, tandis que celle-ci alimente la petite échelle en enstrophie (vorticité). Ces échanges se font par l'intermédiaire de processus de sous-mésoéchelle, on parle de "cascading". La difficulté est la suivante: où met-on les frontières de la sous-mésoéchelle ? \\ 
 
-Un critère potentiellement satisfaisant pour la frontière "supérieure" est le nombre de Rossby (la faut que je mette l'annexe avec les nombres principaux). La mésoéchelle se caractérise par un nombre de Rossby très petit devant 1, on peut voir la transition vers la sous-mésoéchelle lorsque $Ro \approx 1$, c'est-à-dire lorsque la géostrophie devient de l'ordre de la vitesse horizontale du fluide. \\
+\FAadd{Pas exactement... A méso-échelle, on considère généralement que l'énergie cascade vers les grandes échelles alors que l'enstrophie, caractérisant la vorticité, cascade vers les plus petites échelles. On parle alors de \textit{cascade inverse} (vallis, 2006). Dans un tel modèle, la cascade turbulente à micro-échelle serait donc alimentée par les effets diabatiques dans les couches limites (friction, mélange...) or l'on sait aujourd'hui qu'une \textit{cascade directe} peut prendre naissance au sein même de la colonne d'eau, l'énergie étant alors au contraire transférée vers les plus fines échelles (taylor,2023). Le rôle joué par les processus de sous-mésoéchelle lors de la mise en place de cette cascade directe pose aujourd'hui encore de nombreuses questions (McWilliams, 2016).}
+
+\FAdel{Regardons de plus près} quels sont les caractéristiques physiques qui pilotent les processus des différentes échelles. \FAdel{Au niveau de la mésoéchelle,}\\
+
+Un critère potentiellement \FAadd{satisfaisant} \FAadd{pertinent} pour la frontière "supérieure" \FAadd{du spectre de sous-mésoéchelle} est le nombre de Rossby (la faut que je mette l'annexe avec les nombres principaux). La mésoéchelle se caractérise par un nombre de Rossby \FAdel{très} petit devant 1, on peut voir la transition vers la sous-mésoéchelle lorsque $Ro \approx 1$, \FAdel{c'est-à-dire lorsque la géostrophie devient de l'ordre de la vitesse horizontale du fluide.} \FAadd{i.e. lorsque les principaux "grands équilibres" (hydrostatique, géostrophie...) sont rompus.} \\
 Là faut que je trouve un critère pour l'autre frontière + ref à McWilliams 2016
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=1
     \textwidth]{images/sous_meso.png}
-    \caption{Processus de sous-mésoéchelle et cascade d'énergie}
+    \caption{Processus de sous-mésoéchelle et cascade d'énergie. \FAadd{Tu dois avoir une figure plus simple... Dans ta légende, tu dois donner un maximum d'informations pour faciliter la compréhension de la figure... Abscisses, ordonnées ? Couleurs ? Flèches ? etc...}}
     \label{fig:echelles}
 \end{figure}
 
-La figure \ref{fig:echelles} retracent les différents processus faisant le liens entre mésoéchelle, sous-mésoéchelle et microéchelle, dans l'océan et à la surface. Pendant ce stage, nous nous sommes intéressés à différents types d'instabilités convectives, de cisaillement ou non, ainsi qu'à la propagationd des ondes acoustiques dans l'océan.
+La figure \ref{fig:echelles} retrace les différents processus faisant le liens entre mésoéchelle, sous-mésoéchelle et microéchelle, dans l'océan et à la surface. Pendant ce stage, nous nous sommes plus spécifiquement intéressés à différents types \FAadd{de processus et d'instabilités de sous-mésoéchelle}: instabilités convectives, instabilités de cisaillement, mais aussi propagation des ondes acoustiques dans l'océan.
 \\
-Reste à savoir si je retravaille pas un peu l'image pour ne pas me perdre dans tout ça parce que y a beaucoup de chose.
+Reste à savoir si je retravaille pas un peu l'image pour ne pas me perdre dans tout ça parce que y a beaucoup de chose. \FAadd{Oui, tout à fait, tu dois avoir une version beaucoup plus simple de cette figure. A la limite, tu peux ne pas la mettre...}
 
 \subsection{Bases dynamiques des processus}
 \label{Dynamiques globales}
-L'ensemble de la dynamique des phénomènes étudiées s'appuie sur les équations de la mécanique des fluides et de la thermodynamique, ces 5 équations en particulier :
+L'ensemble de la dynamique des phénomènes étudiés s'appuie sur les équations de la mécanique des fluides et de la thermodynamique \FAdel{, ces 5 équations en particulier} :
 \begin{equation}
     \frac{\partial \rho}{\partial t} = - \nabla \cdot (\rho \mathbf{v})
     \label{eq:continuite}
@@ -122,13 +118,14 @@ L'ensemble de la dynamique des phénomènes étudiées s'appuie sur les équatio
 \begin{center}
     \textit{Equation d'état}
 \end{center}
+\FAadd{Pour gagner de la place, utilise plutôt les "sous-équations" (regarde dans les documents que je t'ai donnés et mets sur la même ligne le type d'équation et sa formulation.}
 
 \textit{Les termes des différentes équations  sont décrits sur l'Annexe 1.}
 \\
-On peut remarquer que l'équation \eqref{eq: qtt de mouvement} est écrite en terme de densité, ce choix est motivé par plusieurs raisons. Tout d'abord d'un point de vue physique, cette représentation permet de faire le lien avec les différents flux, à l'aide du théorème d'Ostrogradski. De plus, c'est également une méthode pour représenter numériquement les phénomènes, qui permet d'éviter certaines problèmes liés à la discrétisation. \\
+\FAdel{On peut remarquer que l'équation \eqref{eq: qtt de mouvement} est écrite en terme de densité, ce choix est motivé par plusieurs raisons. Tout d'abord d'un point de vue physique, cette représentation permet de faire le lien avec les différents flux, à l'aide du théorème d'Ostrogradski. De plus, c'est également une méthode pour représenter numériquement les phénomènes, qui permet d'éviter certaines problèmes liés à la discrétisation.} \FAadd{Les équations du mouvement, de la chaleur et de la salinité (cite les labels... pour référence) sont données sous forme \textit{flux} afin de faciliter leur interprétation en termes de bilan, anticipant de plus leur formulation numérique.} \\
 
 \vspace{0.5 cm}
-La résolution de l'équation d'état \eqref{eq:etat} est très coûteuse numériquement parlant, c'est pour cela que dans le modèle Croco, qui sera présenté un peu plus tard nous avons privilégier une méthode de décomposition de la densité. En effet, on fait un développement limité autour de la pression hydrostatique $p_h$ :
+\FAdel{La résolution de l'équation d'état \eqref{eq:etat} est très coûteuse numériquement parlant, c'est pour cela que dans le modèle Croco, qui sera présenté un peu plus tard nous avons privilégié une méthode de décomposition de la densité.} \FAadd{Afin de faciliter la résolution numérique de ce système, la dépendance de la densité en la pression totale peut être linéarisée (Auclair et al., 2024)...} En effet, on fait un développement limité autour de la pression hydrostatique $p_h$ :
 
 \begin{equation}
     \rho_{eos}(\theta, S, p_h +\delta p) = \rho_{eos}(\theta, S, p_0) + c_s^{-2}(p_h - p_0) + c_s^{-2}\delta p
@@ -138,19 +135,20 @@ Ce qui donne :
      \rho_{eos}(\theta, S, p_h +\delta p) =  \rho_h + \rho_c + c_s^{-2}\delta p
      \label{eq:decomp densite}
 \end{equation}
-Le développement au 1er ordre permet de linéariser la partie acoustique, ce qui revient moins cher numériquement.
+\FAdel{Le développement au 1er ordre permet de linéariser la partie acoustique, ce qui revient moins cher numériquement.}
 \vspace{0.5 cm}
 
-Selon le cas que nous regardons, nous pouvons dégager des grandeurs caractéristiques qui permettent d'adimensionnaliser les équations de la mécanique des fluides. Ceci nous permettra de définir ce qu'on appelle des "régimes dynamiques", ce sont les nombres adimensionnels (Reynolds, Rossby etc...) qui nous donnerons des indications pour savoir dans quel régime nous nous trouvons.
+\FAdel{Selon le cas que nous regardons, nous pouvons dégager des grandeurs caractéristiques qui permettent d'adimensionnaliser les équations de la mécanique des fluides.} \FAadd{Le modèle (référence) est toutefois très général et décrit une vaste gamme de processus dynamiques, il peut toutefois être simplifié en ciblant une gamme d'échelles caractéristiques et en adimentionnalisant chacunes des équations}. Ceci nous permettra de définir ce qu'on appelle des "régimes dynamiques", ce sont les nombres adimensionnels (Reynolds, Rossby etc...) qui nous donnerons des indications pour savoir dans quel régime nous nous trouvons.
 , (les 4 derniers de la page du site wocean)
 parler d'adimensionnalisation
+\FAadd{Si tu choisis de présenter les régimes, tu peux effectivement ajouter en annexe les 4 derniers régimes. Tu dois alors les présenter et donnes leurs principales caractéristiques dans le texte en les rattachant aux 3 gammes d'échelles que tu viens de présenter.}
 
 \section{Le modèle Croco}
-Croco (Coastal and Regional Ocean COmmunity model) est un modèle cherchant à représenter l'océan costal et régional d'un point de vue dynamique, sédimentaire et biogéochimique avec une résolution spatiale allant du kilomètre au mètre. C'est un modèle communautaire, son développement vient donc des échanges entre différents laboratoires du monde. \\
+Croco (Coastal and Regional Ocean COmmunity model) \FAadd{est un code communautaire d'océan régional, côtier ou encore littoral (hilt, 2020). Croco inclut des modules dynamiques, sédimentaires ou encore biogéochimique.} \FAdel{d'un point de vue dynamique, sédimentaire et biogéochimique avec une résolution spatiale allant du kilomètre au mètre. C'est un modèle communautaire, son développement vient donc des échanges entre différents laboratoires du monde.} \\
 
 
 \subsection{Objectifs et hypothèses}
-Au LAERO (Laboratoire d'Aérologie, Observatoire Midi-Pyrénnées) l'équipe qui développe Croco se concentre sur la représentation dynamique et numérique des processus océaniques de sous-mésoéchelle, sous la forme de cas-test. On isole un processus et on essaie de le représenter de la façon la plus fidèle possible, en cherchant un compromis avec un amoindrissement des coûts énergétiques. \\
+Au LAERO (Laboratoire d'Aérologie, Observatoire Midi-Pyrénées) l'équipe qui développe Croco se concentre sur la représentation dynamique et numérique des processus océaniques de sous-mésoéchelle \FAdel{sous la forme de cas-test}. On isole un processus et on essaie de le représenter de la façon la plus fidèle possible, en cherchant un compromis avec un amoindrissement des coûts énergétiques. \\
 Plusieurs hypothèses fondamentales ont été faites pour les représentations dynamiques, on parle notamment de représentation compressible et non-hydrostatique, hypothèses essentielles pour modéliser les ondes acoustiques. De plus, pour prendre en compte les ondes de surfaces, on a considérer l'existence d'un "toit libre", à l'inverse d'une surface océanique plate et rigide.
 
 
@@ -445,6 +443,7 @@ Finalement, on comprend que plusieurs facteurs rentrent en jeu lorsqu'il s'agit 
 
 
 \printbibliography
+
 
 % Ajout de l'annexe
 \newpage
