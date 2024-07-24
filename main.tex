@@ -1,0 +1,496 @@
+\documentclass{rapportECC}
+\usepackage{lipsum}
+\usepackage{amsmath} % Pour les environnements et commandes mathématiques avancées
+\usepackage{amsfonts} % Pour les polices mathématiques supplémentaires
+\usepackage{mathrsfs} % Pour les lettres script
+\usepackage{hyperref} % Pour les hyperliens et les références croisées
+\title{Rapport ECL - Template} %Titre du fichier
+\usepackage{lipsum} 
+\usepackage{biblatex} %Imports biblatex package
+\addbibresource{bibtex.bib} %Import the bibliography file
+\usepackage{appendix} % Package pour gérer les annexes
+
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\definecolor{peru}{RGB}{205,133,63}
+\definecolor{DodgerBlue}{RGB}{30,144,255}
+\definecolor{PAD}{rgb}{0.53, 0.15, 0.34}
+\newcommand{\FAcom}[1]{\textcolor{peru}{~\textit{(\textbf{FL:}~{#1})}}}  % commentaires
+\newcommand{\FAadd}[1]{\textcolor{DodgerBlue}{{#1}}}                     % ajouts/changements
+\newcommand{\FAdel}[1]{\textcolor{DodgerBlue}{\sout{#1}}}                % suppressions 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+\begin{document}
+
+%----------- Informations du rapport ---------
+
+\titre{Les processus océaniques de sous-mésoéchelle} %Titre du fichier .pdf
+
+\sujet{\LaTeX Approfondi} %Nom du sujet
+
+\Encadrants{Francis \textsc{Auclair}
+ \\Cyril \textsc{Nguyen} } %Nom de l'enseignant
+
+\eleves{Naëla \textsc{Chehbouni}} %Nom des élèves
+
+%----------- Initialisation -------------------
+        
+\fairemarges %Afficher les marges
+\fairepagedegarde %Créer la page de garde
+\tabledematieres %Créer la table de matières
+
+%------------ Corps du rapport ----------------
+\FAadd{Dans ton introduction, il te faut introduire le sujet en identifiant clairement la problématique, en proposant un état de l'art sous la forme d'une revue biblio (en 4 semaines, quelques articles bien ciblés suffiront)... Tu peux enfin décrire en quelques lignes le plan de ton rapport.\\
+Je pense que tu peux proposer dans une seconde partie, une discussion (rapide) du modèle analytiques puis du code. A la limite tu peux si tu le souhaites récupérer une partie des analyses d'échelle pour bien préciser les régimes dynamiques et donc numériques que tu proposes d'étudier. Cette analyse serait à glisser entre la partie modèle analytique et la partie numérique.\\
+Côté objectif et fil conducteur, souhaites-tu partir d'une des figures que je t'ai proposées (et que tu peux mofifier comme tu le souhaites) afin d'expliquer que l'on s'attaque à la simulation explicite de la sous-mésoéchelle (processus et cascades diverses) et qu'à ce titre on commence par étudier de façon isolée les processus clés ? \\
+Le tout je pense est de proposer quelques choses de cohérent, ciblé, avec un objectif et un raisonnement clairs. Qu'en penses-tu ?
+A très vite pour discuter de tout cela...
+}
+
+\section{Introduction} 
+
+
+
+Durant ce stage nous nous sommes intéressés à différents processus océanique de sous-mésoéchelle. Tentons de comprendre un petit peu ce qui ce cache derrière la notion de "sous-mésoéchelle".
+
+
+\subsection{Point sur les échelle}
+%regarder taylor thompson 2023
+De façon générale lorsque nous présentons les différents phénomènes océaniques nous parlons de 3 échelles:
+\begin{itemize}
+    \item la grande échelle : décrit la circulation globale de l'océan (circulation thermohaline...)
+    \item la mésoéchelle : les transports d'Ekman, les vents thermiques, les modèles de bassins, les modèles régionaux..
+    \item la microéchelle (comprenant aussi l'échelle moléculaire) : la turbulance...
+\end{itemize}
+
+Cependant, nous savons que la méso-échelle et la micro-échelle sont étroitement liées et échanges de l'énergie et de la vorticité. En effet, la petite échelle apporte de l'énergie à la grande échelle, tandis que celle-ci alimente la petite échelle en enstrophie (vorticité). Ces échanges se font par l'intermédiaire de processus de sous-mésoéchelle, on parle de "cascading". La difficulté est la suivante: où met-on les frontières de la sous-mésoéchelle ? \\
+Regardons de plus près quels sont les caractéristiques physiques qui pilotent les processus des différentes échelles. Au niveau de la mésoéchelle,\\
+
+Un critère potentiellement satisfaisant pour la frontière "supérieure" est le nombre de Rossby (la faut que je mette l'annexe avec les nombres principaux). La mésoéchelle se caractérise par un nombre de Rossby très petit devant 1, on peut voir la transition vers la sous-mésoéchelle lorsque $Ro \approx 1$, c'est-à-dire lorsque la géostrophie devient de l'ordre de la vitesse horizontale du fluide. \\
+Là faut que je trouve un critère pour l'autre frontière + ref à McWilliams 2016
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1
+    \textwidth]{images/sous_meso.png}
+    \caption{Processus de sous-mésoéchelle et cascade d'énergie}
+    \label{fig:echelles}
+\end{figure}
+
+La figure \ref{fig:echelles} retracent les différents processus faisant le liens entre mésoéchelle, sous-mésoéchelle et microéchelle, dans l'océan et à la surface. Pendant ce stage, nous nous sommes intéressés à différents types d'instabilités convectives, de cisaillement ou non, ainsi qu'à la propagationd des ondes acoustiques dans l'océan.
+\\
+Reste à savoir si je retravaille pas un peu l'image pour ne pas me perdre dans tout ça parce que y a beaucoup de chose.
+
+\subsection{Bases dynamiques des processus}
+\label{Dynamiques globales}
+L'ensemble de la dynamique des phénomènes étudiées s'appuie sur les équations de la mécanique des fluides et de la thermodynamique, ces 5 équations en particulier :
+\begin{equation}
+    \frac{\partial \rho}{\partial t} = - \nabla \cdot (\rho \mathbf{v})
+    \label{eq:continuite}
+\end{equation}
+\begin{center}
+    \textit{Equation de continuité}
+\end{center}
+\begin{equation}
+    \partial_t \rho \mathbf{v} = - \nabla (\rho \mathbf{v} \times \mathbf{v}) - 2\Omega \times \rho \mathbf{v} - \nabla p + \nabla (\mu (\nabla\mathbf{v} + \nabla\mathbf{v}^T) + \mu_2(\nabla \mathbf{v}) \mathbf{I}) +\rho \mathbf{g}
+    \label{eq: qtt de mouvement}
+\end{equation}
+\begin{center}
+    \textit{Quantité de mouvement, en densité}
+\end{center}
+
+
+\begin{equation}
+    \partial_t \rho \theta = -\nabla(\rho\theta\mathbf{v}) + \nabla(\kappa_{\theta}\nabla\theta)
+    \label{eq:chaleur}
+\end{equation}
+\begin{center}
+    \textit{Equation de la chaleur}
+\end{center}
+
+\begin{equation}
+    \partial_t \rho S = -\nabla(\rho S\mathbf{v}) + \nabla(\kappa_S\nabla S)
+    \label{eq:salinite}
+\end{equation}
+\begin{center}
+    \textit{Equation de la salinité} 
+\end{center}
+\begin{equation}
+    \rho = \rho_{eos}(\theta , S, p)
+    \label{eq:etat}
+\end{equation}
+\begin{center}
+    \textit{Equation d'état}
+\end{center}
+
+\textit{Les termes des différentes équations  sont décrits sur l'Annexe 1.}
+\\
+On peut remarquer que l'équation \eqref{eq: qtt de mouvement} est écrite en terme de densité, ce choix est motivé par plusieurs raisons. Tout d'abord d'un point de vue physique, cette représentation permet de faire le lien avec les différents flux, à l'aide du théorème d'Ostrogradski. De plus, c'est également une méthode pour représenter numériquement les phénomènes, qui permet d'éviter certaines problèmes liés à la discrétisation. \\
+
+\vspace{0.5 cm}
+La résolution de l'équation d'état \eqref{eq:etat} est très coûteuse numériquement parlant, c'est pour cela que dans le modèle Croco, qui sera présenté un peu plus tard nous avons privilégier une méthode de décomposition de la densité. En effet, on fait un développement limité autour de la pression hydrostatique $p_h$ :
+
+\begin{equation}
+    \rho_{eos}(\theta, S, p_h +\delta p) = \rho_{eos}(\theta, S, p_0) + c_s^{-2}(p_h - p_0) + c_s^{-2}\delta p
+\end{equation}
+Ce qui donne :
+\begin{equation}
+     \rho_{eos}(\theta, S, p_h +\delta p) =  \rho_h + \rho_c + c_s^{-2}\delta p
+     \label{eq:decomp densite}
+\end{equation}
+Le développement au 1er ordre permet de linéariser la partie acoustique, ce qui revient moins cher numériquement.
+\vspace{0.5 cm}
+
+Selon le cas que nous regardons, nous pouvons dégager des grandeurs caractéristiques qui permettent d'adimensionnaliser les équations de la mécanique des fluides. Ceci nous permettra de définir ce qu'on appelle des "régimes dynamiques", ce sont les nombres adimensionnels (Reynolds, Rossby etc...) qui nous donnerons des indications pour savoir dans quel régime nous nous trouvons.
+, (les 4 derniers de la page du site wocean)
+parler d'adimensionnalisation
+
+\section{Le modèle Croco}
+Croco (Coastal and Regional Ocean COmmunity model) est un modèle cherchant à représenter l'océan costal et régional d'un point de vue dynamique, sédimentaire et biogéochimique avec une résolution spatiale allant du kilomètre au mètre. C'est un modèle communautaire, son développement vient donc des échanges entre différents laboratoires du monde. \\
+
+
+\subsection{Objectifs et hypothèses}
+Au LAERO (Laboratoire d'Aérologie, Observatoire Midi-Pyrénnées) l'équipe qui développe Croco se concentre sur la représentation dynamique et numérique des processus océaniques de sous-mésoéchelle, sous la forme de cas-test. On isole un processus et on essaie de le représenter de la façon la plus fidèle possible, en cherchant un compromis avec un amoindrissement des coûts énergétiques. \\
+Plusieurs hypothèses fondamentales ont été faites pour les représentations dynamiques, on parle notamment de représentation compressible et non-hydrostatique, hypothèses essentielles pour modéliser les ondes acoustiques. De plus, pour prendre en compte les ondes de surfaces, on a considérer l'existence d'un "toit libre", à l'inverse d'une surface océanique plate et rigide.
+
+
+
+\subsection{Fonctionnement}
+D'un point de vue plus technique, le code de Croco repose sur certains principes de fonctionnements tel que le calcul parallèle: au lieu d'utiliser l'ensemble des processeurs à disposition pour faire les calculs sur une grille entière, le calcul parallèle permet de diviser la grille initale et d'attribuer chaque compartiment à un processeur qui échangera ensuite ses informations avec les autres processeurs. \\
+Ensuite, en ce qui concerne les coordonnées verticales, nous utilisons un système "s", 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+systèmes de coordonnées verticales (terrain following "s")\\
+grille c\\
+systèmes à 2 pas de temps, "time splitting" \\
+Schéma temporel time stepping (LFAM3-fb)\\
+
+calcul parallèle MPI (message passing interface) (découpage sur l'horizontale) \\
+architecture cpu(=calculateur classique) gpu(=graphic processing unit bco de processeurs mais moins performants)  à partir de open-acc (=standart de programmation pour ça), petites directives\\
+
+%------------- Commandes utiles ----------------
+
+\section{Les instabilités convectives}
+\subsection{L'instabilité de Rayleigh-Taylor}
+
+Comparable à l'instabilité de Rayleigh-Taylor, l'instabilité convective de déclenche à l'interface entre deux fluides de densités différentes, lorsque le fluide de densité forte est au-dessus du fluide de densité faible. \\ 
+Regardons de plus près la description mathématique et numérique de ce processus.
+
+\subsubsection{Analyse dynamique}
+
+L'équation qui va beaucoup nous intéresser ici d'une part pour comprendre la dynamique du phénomène mais aussi pour proposer différentes représentations numériques est l'équation d'état \eqref{eq:etat}. \\
+\vspace{0.5 cm}
+Dans cette décomposition, le terme $\rho_c$ est responsable du déclenchement de la convection. Cependant, on peut choisir une modélisation sans ce terme, ce qui reviendrait à considérer que l'instabilité vient du gradient de pression (voir \ref{sans rhoc}).
+
+\\
+\vspace{0.5 cm}
+Le terme clé dans la compréhension du phénomène convection est la flottabilité. \\
+On définit :
+\begin{itemize}
+    \item $\rho_0$ la densité de référence de Boussinesq
+    \item $\rho_h$ la représentation du profil stable en densité
+\end{itemize}
+Dans ces conditions, on définit la flottabilité $b$ ainsi :
+\begin{equation}
+    b = \dfrac{-g}{\rho_0}(\rho_c - \rho_0)
+\end{equation}
+\\
+On voit donc le lien ici entre le mouvemement vertical du fluide et la façon avec laquelle on décompose la densité. En effet la présence de :$\rho_c$ installe un régime de convection immédiat, car on aura $b \neq 0$.\\
+
+\subsubsection{Représensation numérique}
+
+Le choix de cette décomposition de la densité est surtout lié à  des problématiques numériques, nous allons voir tout de suite les différences dans le processus de la convection selon la représentation que l'on choisi. \\
+Dans les deux cas, on part du même état initial, on considère un fluide stratifié et stable dans lequel on plonge une goutte stratifiée avec deux densités différentes :
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7
+    \textwidth]{images/Int_ConvT0.png}
+    \caption{Instant initial}
+\end{figure}
+
+
+\vspace{1 cm}
+\underline{\textbf{Avec le terme de convection :}}
+\vspace{0.5 cm}
+
+\\
+Dans ce cas de figure le terme $\rho_h$ est calculé de sorte à  lisser le profil de densité pour en faire un profil stable. Dans le code, il est calculé par le pas de temps lent. \
+Ainsi, dans cette première configuration $\rho_c$ représente l'anomalie autour du profil stable, il est calculé par le pas de temps rapide. C'est donc ce terme qui déclenche la convection (cf équation (6)). \\
+
+\begin{figure}[htb]
+    \centering
+    \subfloat[Etat du fluide au bout de 85 secondes]{\includegraphics[width=0.45\textwidth]{images/avec_rhocS85.png}\label{fig:image1}}\hfill
+    \subfloat[Etat du fluide au bout de 180 secondes. \\ Le mélange a débuté.]{\includegraphics[width=0.45\textwidth]{images/avec_rhocS180.png}\label{fig:image2}}
+    \caption{Description globale des deux images}
+    \label{fig:images_cote_a_cote}
+\end{figure}
+
+Au bout de 85 secondes, nous arrivons à distinguer une sorte de flèche verticale : c'est la forme caractéristique de l'instabilité de Rayleigh-Taylor. On remarque également des sortes de "vagues" autour de la flèche, ce sont des instabilités secondaires de Kelvin-Helmholts, qui seront traitées plus tard (Cf \ref{KHI}).
+
+
+\vspace{1 cm}
+
+
+\underline{\textbf{Sans le terme de convection :}} 
+\label{sans rhoc}
+\vspace{0.5 cm}
+
+Dans cette configuration là , la décomposition de la densité ne fait pas apparaître le terme $\rho_c$, on a donc :
+\begin{equation}
+    \rho_{eos} = \rho_h + c_s^{-2}\delta p
+\end{equation}
+La convection vient d'abord du gradient de pression (cf équation (2)), d'où un mouvement plus porté par l'horizontale. 
+\\
+La simulation numérique donne :
+
+\begin{figure}[H]
+    \centering
+    \subfloat[Etat du fluide au bout de 85 secondes]{\includegraphics[width=0.45\textwidth]{images/sans_rhocS85.png}\label{fig:image1}}\hfill
+    \subfloat[Etat du fluide au bout de 180 secondes. \\ Le mélange a débuté.]{\includegraphics[width=0.45\textwidth]{images/sans_rhocS180.png}\label{fig:image2}}
+    \caption{Description globale des deux images}
+    \label{fig:images_cote_a_cote}
+\end{figure}
+\\
+On remarque des différences dans le processus, notamment dans l'étendue verticale de la convection. On retrouve quand même les instabilités secondaires de Kelvin-Helmholtz, qui viennent du cisaillement des vitesses (elles-mêmes fruits du gradient de pression, cf \eqref{eq: qtt de mouvement}).
+\\
+On voit que le mouvement a une extension verticale beaucoup plus restreinte que lorsque la décomposition de $\rho$ prenait en compte $\rho_c$.
+\\
+Parler de brunt vasiala
+
+\subsection{L'instabilité de Kelvin-Helmholtz}
+\label{KHI}
+\\
+Là je comptais nommer les autres instabilités de cisaillements sans trop les détailler + parler un peu des ondes internes mais je sais pas à quel point c'est une bonne idée de parler de quelque chose sans le détailler.
+\\
+Cette instabilité se produit au niveau d'une interface de cisaillement de vitesse dans un fluide stratifié (c'est-à-dire, $N = cste$). \\
+
+\subsubsection{Analyse dynamique}
+
+On considère un fluide stratifié dans lequel on retrouve un cisaillement de vitesse. Plus précisément, sur la figure \ref{fig:KHI1} la partie bleue a une composante horizontale de vitesse égale à $-1 m \cdot s^{-1}$, tandis que celle de la partie rouge vaut $+1 m \cdot s^{-1}$. D'un point de vue statique, le fluide est stable, c'est-à-dire qu'on à $\rho_{bleu} < \rho_{rouge}$. \\
+On exprime la vitesse du fluide sous la forme d'une anomalie autour du profil moyen U, on a donc $u = U+u'$ avec $u'<<U$. \\
+On se place également sous l'hypothèse incompressible, ce qui nous permet d'écrire: 
+\begin{equation}
+    \mathbf{\nabla} \cdot \mathbf{u} = 0
+\end{equation}
+Ainsi, nous pouvons réécrire les équations de la mécaniques des fluides et de la thermodinamiques (\ref{Dynamiques globales}) en fonction de $\psi$, la fonction de courant afin de réduire le nombre d'inconnues.
+\\
+On écrit :
+\begin{equation}
+    \psi(x,y,t) = \tilde{\psi}(y)exp(ik(x-ct))
+    \label{eq: fct courant}
+\end{equation}
+Nous obtenons ainsi l'équation de Taylor-Goldstein : \\
+\begin{equation}
+    (U - c)(\tilde{\psi}_{zz} - k²\tilde{\psi}) + (\frac{N²}{U - c} - U_{zz})\tilde{\psi} = 0
+    \label{eq: taylor goldstein}
+\end{equation}
+
+Comme écrit au début du paragraphe, d'un point de vue statique, le fluide est stable, il faut dont que l'instabilité soit \textbf{déclenchée}. \\
+
+La stratégie adoptée pour mettre en évidence un critère de stabilité est la suivante : on rend $c$ complexe c'est à dire: $c = c_r + ic_i $. Ainsi, le système sera instable seulement si $c_i \neq 0$. Plus précisément, c'est le signe de $c_i$ qui nous indiquera la stabilité du système, le fait qu'il ne soit pas égal à 0 ne permet pas de le déterminer. Cependant, en retravaillant l'équation de Taylor-Goldstein \eqref{eq: taylor goldstein} et en supposant que $c_i \neq 0$, on obtient une condition nécessaire à remplir pour déclencher l'instabilité:
+\begin{equation}
+    N² - \frac{U_{z}²}{4} < 0
+\end{equation}
+Ce qui donne : $\frac{N²}{U_{z}²} < \frac{1}{4}$. 
+Que l'on peut traduire par :
+
+\begin{equation}
+    Ri < \frac{1}{4}
+\end{equation}
+En fait, cette condition a 2 solutions, une stable (pas de d'instabilité de Kelvin-Helmholtz donc) et une instable (celle qui nous intéresse), c'est pour cela qu'on qualifie cette condition de nécessaire non suffisante.
+
+ \\
+
+\subsubsection{Représentation numérique}
+Le processus de mélange par instabilité de Kelvin-Helmhotlz se déroule en plusieurs étapes. Tout d'abord après quelques instants à peine on distingue la phase \textbf{d'enroulement} (voir figure \ref{fig:KHI2}), la partie la plus dense du fluide s'enroule autour de la partie moins dense ce qui forme une sorte de vagues. Ensuite, le "bout de la vague" s'étire donc, par conservation de matière, le fil s'amincit, c'est la phase \textbf{d'étirement} (figure \ref{fig:KHI3}). Jusque là, il n'y a pas de mélange, on voit encore bien les phases bleues et rouges du fluide, ce n'est qu'après la phase d'étirement que le mélange se fait (figure \ref{fig:KHI4}).
+\begin{figure}[htbp] % L'argument [htbp] indique à LaTeX d'essayer de placer la figure "ici", "en haut de la page", "en bas de la page" ou "à la page suivante", selon ce qui convient le mieux.
+    \centering
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/KHI1.png}
+        \caption{Etat initial}
+        \label{fig:KHI1}
+    \end{minipage}
+    \hspace{0.05\textwidth} % Espace horizontal entre les deux images
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/KHI2.png}
+        \caption{Phase d'enroulement}
+        \label{fig:KHI2}
+    \end{minipage}
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/KHI3.png}
+        \caption{Phase de brassage}
+        \label{fig:KHI3}
+    \end{minipage}
+    \hspace{0.05\textwidth} % Espace horizontal entre les deux images
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/KHI4.png}
+        \caption{Mélange}
+        \label{fig:KHI4}
+    \end{minipage}
+\end{figure}
+
+
+
+
+
+
+
+
+\section{Les ondes acoustiques: propagation en océan stratifié}
+
+Nous allons maintenant nous intéresser à la propagation des ondes acoustiques dans l'océan. Cela peut avoir des applications intéressantes notamment dans la prévention des risques. Effectivement, les ondes acoustiques se déplacent dans l'océan à une vitesse d'environ 1 500 $m \cdot s^{-1}$, à titre de comparaison les vagues d'un tsunami peuvent aller à 300 $m \cdot s^{-1}$. Ainsi, trouver une caractérisation acoustique de ces phénomènes pourrait améliorer leur détection et donc dans ce cas précis anticiper l'évacuation de la population.
+
+\subsection{Postulats dynamiques}
+\subsubsection{Mise en équation}
+
+
+On part des équations habituelles de la mécanique des fluides et de la thermodynamique. (phrase sur le régime)
+\\
+On néglige la force de Coriolis, la viscosité et le coefficient de diffusivité.
+\\
+Ce n'est pas une équation de d'Alembert classique que vérifie la pression ici, en effet il faut prendre en compte la vitesse et la non-homogénéité du fluide. Voici l'équation que propose Godin[2011] cf thèse PAD
+\begin{equation}
+    \frac{d}{dt}[\frac{d}{dt}(\frac{1}{\rho cÂ²}\frac{dp}{dt}) - \nabla \cdot \frac{\nabla p}{\rho}] + 2\frac{\partial \mathbf{u}}{\partial x_i} \cdot \nabla (\frac{1}{\rho}\frac{\partial \rho}{\partial x_i}) = 0
+\end{equation}
+
+Cependant, cette équation ne retranscrit pas vraiment ce qu'on cherche à représenter. En effet, nous souhaiterions prendre en compte les conditions aux limites: les sédiments au fond de l'océan et a surface libre, car celles ci sont essentielles pour comprendre le concept de propagation en modes. cf OM2021
+
+\subsubsection{Concept de modes de propagation}
+
+A la manière de la propagation d'une onde électromagnétique dans une fibre optique, l'onde acoustique ici se réfléchit à la fois à la surface et au fond de l'océan. Cela conduit notamment en interférences entre les différents fronts réfléchis. Les interférences constructrices forment ce qu'on appelle des "modes de propagation". On numérote également ces modes: les numéros correspondent au nombre de réflexion avant l'interférence. On comprend donc que plus le mode est élevé, moins le front est rapide. \\
+Là il me manque une image mais j'en trouve pas de satisfaisante, je la créerai peut etre moi même.
+%c dans un milieu non borné
+\\
+
+Décrire avec un article OM2021 pour les conditions aux limites
+autre publi: revisiting oceaninic acoustic gravity surface waves
+
+\subsection{Popagation en 2d dans un océan stratifié en prenant en compte la bathymétrie}
+
+
+\subsubsection{Cas général avec une bathymétrie marquée}
+
+\begin{figure}[H] % L'argument [htbp] indique à LaTeX d'essayer de placer la figure "ici", "en haut de la page", "en bas de la page" ou "à la page suivante", selon ce qui convient le mieux.
+    \centering
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/im2.png}
+        \caption{Image 1}
+        \label{fig:image1}
+    \end{minipage}
+    \hspace{0.05\textwidth} % Espace horizontal entre les deux images
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/im4.png}
+        \caption{Image 2}
+        \label{fig:image2}
+    \end{minipage}
+    \vspace{1cm} % Espace vertical entre la première ligne et la deuxième image
+    \begin{minipage}{0.9\textwidth}
+        \centering
+        \includegraphics[width=0.45\textwidth]{images/im6.png}
+        \caption{Image 3}
+        \label{fig:image3}
+    \end{minipage}
+    \caption{Description générale des images.}
+    \label{fig:three_images}
+\end{figure}
+Pour la première configuration, on considère une onde acoustique émise à 100 mètres de profondeur, dans un environnement avec une bathymétrie marquée. \\
+Les "taches" que l'on voit sur les figures représentent les modes de propagation. \\
+D'ailleurs, à  partir de la deuxième image on voit bien que l'onde a l'air de se propager plus vite dans le sédiment que dans l'océan, on apperçois également la réfraction de l'onde dans le sédiment qui retourne dans l'océan, qui se trouve donc devant le front d'onde.\\
+On remarque également l'atténuation de l'onde dans le sédiment, bien qu'elle se déplace plus vite dedans.
+
+\\
+\vspace{1 cm}
+
+Ensuite, nous avons refait des simulations en changeant à la fois la nature du sédiment (argile ou sable) mais aussi la profondeur de l'océan (150 et 300 mètres)
+\subsubsection{Influence du sédiment}
+On  compare la propagation d'une onde acoustique dans un océan de 150 mètres de profondeur en fonction de la nature du sédiment. \\
+Pour l'argile, on a pris une vitesse de compression de $1550 m \cdot s^{-1}$ et une densité égale à $1.7 kg \cdot dm^{-3}$ .
+\\
+Pour l'agile, on a pris une vitesse de compression de $1800 m \cdot s^{-1}$ et une densité égale à $2 kg \cdot dm^{-3}$. \\
+D'ailleurs la vitesse de compression dans un sédiment dépend entre autre de sa densité, plus le milieu est dense, plus l'onde se propage rapidement.
+\begin{figure}[H]
+    \centering
+    \subfloat[Propagation dans un milieu argileux]{\includegraphics[width=0.45\textwidth]{images/im4_150_argile.png}}\label{fig:image1}\hfill
+    \subfloat[Propagation dans un milieu sableux]{\includegraphics[width=0.45\textwidth]{images/im4_150_sable.png}\label{fig:image2}}
+    \caption{Influence du sédiment dans la propagation d'une onde acoustique}
+    \label{fig:images_cote_a_cote}
+\end{figure}
+Ainsi, comme on pouvait s'y attendre, l'onde se déplace plus vite dans le sable que dans l'argile. Cependant, il semblerait que le sable soit un milieu plus dispersif que l'argile dans la mesure où l'onde à l'air de s'atténuer beaucoup plus rapidement dans le milieu sableux.
+
+\subsubsection{Influence de la profondeur}
+
+Maintenant comparons la propagation de l'onde dans un même milieu mais pour des profondeurs différentes. 
+
+\begin{figure}[H]
+    \centering
+    \subfloat[Propagation dans un océan de 150 mètres de profondeur]{\includegraphics[width=0.45\textwidth]{images/im4_150_argile.png}}\label{fig:image1}\hfill
+    \subfloat[Propagation dans un océan de 300 mètres de profondeur]{\includegraphics[width=0.45\textwidth]{images/im4_300_argile.png}\label{fig:image2}}
+    \caption{Influence de la profondeur dans la propagation d'une onde acoustique}
+    \label{fig:images_cote_a_cote}
+\end{figure}
+Dans l'océan profond de 150 mètres, l'onde semble complètement atténuée vers une profondeur de -370 mètres. Pour celui profond de 300 mètres, l'onde résiste au delà de 500 mètres de profondeur. Globalement dans les deux océans les ondes sont atténuée dans le sédiment après une distance caractéristique autour des 200 mètres. 
+\vspace{1 cm}
+Finalement, on comprend que plusieurs facteurs rentrent en jeu lorsqu'il s'agit d'évaluer la propagation d'une onde acoustique dans l'océan. Tout d'abord la profondeur des eaux joue sur la distance maximale que l'onde pourra atteindre avant d'être atténuée. D'autre part, la nature du sédiment influence la vitesse de propagation de l'onde, en effet l'onde se propage plus vite dans le sable, c'est-à-dire dans le milieu le plus dense (la masse volumique du sédiment n'est pas le seul paramètre à prendre en compte).
+\section{Discussion et conclusion}
+
+
+\newpage
+
+
+\printbibliography
+
+% Ajout de l'annexe
+\newpage
+\begin{appendices}
+\section{Annexe : }
+Dans cette section de l'annexe, nous fournissons des détails supplémentaires.
+\subsection{Définition des variables}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Tableau des variables %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+{\renewcommand{\arraystretch}{1.5}
+\begin{table}
+\begin{center}
+\begin{tabular}{ l l }
+\hline 
+$\mathbf{g} = (0,0,g)$ &  accélération de la pesanteur \\
+$\boldsymbol{\Omega} = (0,f^\perp/2,f/2)$ & vecteur de vitesse angulaire dans le référentiel local \\
+%$\boldsymbol{\tau}$  & viscous stress tensor \\ 
+$\nabla = (\partial_x, \partial_y, \partial_z)$ & opérateur gradient en coordonnées cartésiennes\\
+$\mathbf{x} = (x,y,z)= (x,y,\mathscr{s})$ & spatial location in Cartesian and $\mathscr{s}$-coordinates\\
+$\mathbf{\nabla}_{\mathscr{s}}.(\rho h \mathbf{v})= \partial_{x} \rho h u \big\vert_\mathscr{s}+\partial_\mathscr{s}\rho v_\mathscr{s}$ & Advection in flux form and $\mathscr{s}$-coordinates \ref{Eq_mass_s} \\
+\hline
+$\mathbf{v} = (u,v,w)$, $\mathbf{u} = (u,v,0)$  & 3D, horizontal velocity vector  \\ 
+$(\theta,\rho,S)$ & Potential temperature and density and salinity \\
+$\zeta(x,y,t)$ & free-surface elevation \\
+$\psi$ & any physical intensive, specific, scalar variable. \\
+$\rho_0$  &  Boussinesq reference density \\
+$p_0(z) = - \rho_0 g z$ & background hydrostatic pressure   \\
+$p_{\rm h}=-\rho_{\rm h} g$  & hydrostatic pressure based on the statically-stable portion of the density field\\
+$\rho_{\rm c} = \rho_{\rm eos}(\theta,S,p_0)-\rho_h$  & statically-unstable portion of the density field \\
+$\delta p=c_s^2\delta\rho$  & compressible pressure and density anomalies with $c_s$ the speed of sound \\
+\hline
+$\mu$ ($\mu_2$)  & dynamic (bulk or second) viscosity  \\
+$\kappa_\theta$ ($\kappa_S$) & thermal (salt) diffusivity\\
+\hline 
+\end{tabular}
+\end{center}
+\caption{\textit{summary of the main notations.}}
+\label{Table_notations}
+\end{table}
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Tableau des variables %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Vu que j'ai récupéré ce tableau dans "Papier Croco" qui est pas encore sorti, je peux le citer ou pas ?
+
+\end{appendices}
+
+\end{document}
